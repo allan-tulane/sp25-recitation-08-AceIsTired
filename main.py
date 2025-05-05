@@ -1,31 +1,34 @@
 from collections import deque
-from heapq import heappush, heappop 
+import heapq
 
 def shortest_shortest_path(graph, source):
-    """
-    Params: 
-      graph.....a graph represented as a dict where each key is a vertex
-                and the value is a set of (vertex, weight) tuples (as in the test case)
-      source....the source node
-      
-    Returns:
-      a dict where each key is a vertex and the value is a tuple of
-      (shortest path weight, shortest path number of edges). See test case for example.
-    """
-    ### TODO
-    pass
-    
+    result = {v: (float('inf'), float('inf')) for v in graph}
+    result[source] = (0, 0)
+    h = [(0, 0, source)]
+    while h:
+        weight, edges, node = heapq.heappop(h)
+        for neighbor, w in graph[node]:
+            new_weight = weight + w
+            new_edges = edges + 1
+            if (new_weight < result[neighbor][0] or
+               (new_weight == result[neighbor][0] and new_edges < result[neighbor][1])):
+                result[neighbor] = (new_weight, new_edges)
+                heapq.heappush(h, (new_weight, new_edges, neighbor))
+    return result
 
-    
-    
+
 def bfs_path(graph, source):
-    """
-    Returns:
-      a dict where each key is a vertex and the value is the parent of 
-      that vertex in the shortest path tree.
-    """
-    ###TODO
-    pass
+    result = {}
+    v = set([source])
+    que = deque([source])
+    while que:
+        node = que.popleft()
+        for neighbor in graph[node]:
+            if neighbor not in v:
+                v.add(neighbor)
+                result[neighbor] = node
+                que.append(neighbor)
+    return result
 
 def get_sample_graph():
      return {'s': {'a', 'b'},
@@ -35,14 +38,12 @@ def get_sample_graph():
             'd': {}
             }
 
-
-    
 def get_path(parents, destination):
-    """
-    Returns:
-      The shortest path from the source node to this destination node 
-      (excluding the destination node itself). See test_get_path for an example.
-    """
-    ###TODO
-    pass
+    p = []
+    while destination in parents:
+        p.append(parents[destination])
+        destination = parents[destination]
+    return ''.join(reversed(p))
+
+print(get_path(bfs_path(get_sample_graph(), 's'), 'd'))
 
